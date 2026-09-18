@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 
 // Define the connection cache type
@@ -8,7 +9,7 @@ type MongooseCache = {
 
 // Extend the global object to include our mongoose cache
 declare global {
-   
+
   var mongoose: MongooseCache | undefined;
 }
 
