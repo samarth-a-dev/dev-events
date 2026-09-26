@@ -4,13 +4,23 @@ import Event from '@/database/event.model';
 import connectDB from '@/lib/mongodb';
 
 export const getSimilarEventsBySlug = async (slug: string) => {
-    try {
-        await connectDB();
+  'use cache';
 
-        const event = await Event.findOne({ slug });
-        return await Event.find({ _id: { $ne: event._id }, tags: { $in: event.tags } }).lean();
+  try {
+    await connectDB();
 
-    } catch {
-        return [];
-    }
-}
+    const event = await Event.findOne({ slug });
+    if (!event) return [];
+
+    const similarEvents = await Event.find({
+      _id: { $ne: event._id },
+      tags: { $in: event.tags },
+    }).lean();
+
+    // Convert BSON ObjectIds & dates into plain JSON types
+    return JSON.parse(JSON.stringify(similarEvents));
+  } catch (error) {
+    console.error("Error fetching similar events:", error);
+    return [];
+  }
+};
